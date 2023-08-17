@@ -1,15 +1,20 @@
+#include <math.h>
 #include <SD.h>
 #include <SPI.h>
 #include <LiquidCrystal.h>
 
 // Pin configurations
-const int startButtonPin = A1;
-const int stopButtonPin = A2;
-const int newFileButtonPin = A3;
-const int voltagePin = A0;
-const int currentPin = A4;
-const int tempPin = A5;
-const int LDRPin = 10;
+const int VOLTAGE_PIN = A4;
+const int CURRENT_PIN = A1;
+const int TEMP_PIN = A3;
+const int LUX_PIN = A0; // Adjust as needed
+const int BUTTON_START_PIN = 7;
+const int BUTTON_STOP_PIN = 8;
+const int BUTTON_NEWFILE_PIN = 9;
+const int SD_CS_PIN = 4; // Chip Select Pin for SD card
+const int startButtonPin = A2;
+const int stopButtonPin = 0;
+const int newFileButtonPin = 1;
 
 // Constants for calculations
 const int ACS712_TYPE = 5; // 5A version
@@ -117,7 +122,7 @@ void loop() {
 }
 
 double getCurrent() {
-  int raw = analogRead(currentPin);
+  int raw = analogRead(CURRENT_PIN);
   double voltage = (raw / ADC_SCALE) * VCC;
   double offsetVoltage = VCC / 2.0;
   double sensitivity = 0.185; // 185mV per A for 5A version
@@ -127,20 +132,20 @@ double getCurrent() {
 double getVoltage() {
   double R1 = 15000; // 15K resistor
   double R2 = 10000; // 10K resistor
-  int raw = analogRead(voltagePin);
+  int raw = analogRead(VOLTAGE_PIN);
   double Vout = (raw / ADC_SCALE) * VCC;
   return Vout / (R2 / (R1 + R2));
 }
 
 double getTemperature() {
-  double val = analogRead(tempPin);
+  double val = analogRead(TEMP_PIN);
   double fenya = (val / 1023) * 5;
   double r = (5 - fenya) / fenya * 4700;
   return 1 / (log(r / 10000) / 3950 + 1 / (25 + 273.15)) - 273.15;
 }
 
 double getLUX() {
-  int sensorValue = analogRead(LDRPin);
+  int sensorValue = analogRead(LUX_PIN);
   return (sensorValue / ADC_SCALE) * 100; // 100 for scaling factor depending on your LDR
 }
 
